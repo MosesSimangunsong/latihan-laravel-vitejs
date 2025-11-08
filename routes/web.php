@@ -13,6 +13,7 @@ Route::middleware(['handle.inertia'])->group(function () {
         Route::get('/register', [AuthController::class, 'register'])->name('auth.register');
         Route::post('/register/post', [AuthController::class, 'postRegister'])->name('auth.register.post');
         Route::delete('/todo/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
+        Route::patch('/todo/{id}/status', [TodoController::class, 'updateStatus'])->name('todo.updateStatus');
     });
 
     Route::get('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');

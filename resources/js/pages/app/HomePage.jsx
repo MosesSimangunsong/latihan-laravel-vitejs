@@ -1,5 +1,5 @@
 import AppLayout from "@/layouts/AppLayout";
-import { router, useForm } from "@inertiajs/react"; // <--- Pastikan 'router' ada di sini
+import { router, useForm } from "@inertiajs/react";
 import {
     Card,
     CardContent,
@@ -21,7 +21,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trash2 } from "lucide-react"; // <--- Tambahkan import ikon
+import { Trash2 } from "lucide-react";
 
 export default function HomePage({ auth, todos }) {
     // Form Tambah Data (Biarkan apa adanya)
@@ -35,11 +35,19 @@ export default function HomePage({ auth, todos }) {
         });
     };
 
-    // FUNGSI UNTUK HAPUS DATA
+    // Fungsi Hapus Data (Biarkan apa adanya)
     const onDelete = (todoId) => {
         router.delete(route("todo.destroy", { id: todoId }), {
-            // Jaga scroll position setelah redirect
             preserveScroll: true,
+        });
+    };
+
+    // === FUNGSI BARU UNTUK UPDATE STATUS ===
+    const onToggleStatus = (todo) => {
+        router.patch(route("todo.updateStatus", { id: todo.id }), null, {
+            // Opsi ini penting agar halaman tidak 'loncat' atau 'flash'
+            preserveScroll: true,
+            preserveState: true, // Jaga state form tambah data
         });
     };
 
@@ -60,6 +68,7 @@ export default function HomePage({ auth, todos }) {
 
                     {/* Form Tambah Data (Biarkan) */}
                     <form onSubmit={onSubmit} className="mb-6">
+                        {/* ... (isi form) ... */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Buat Rencana Baru</CardTitle>
@@ -98,10 +107,18 @@ export default function HomePage({ auth, todos }) {
                             <Card key={todo.id}>
                                 <CardContent className="p-6 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
+                                        
+                                        {/* === MODIFIKASI CHECKBOX === */}
                                         <Checkbox
+                                            id={`todo-${todo.id}`} // Tambahkan ID untuk aksesibilitas
                                             checked={todo.is_finished}
-                                            // Kita akan tambahkan fungsi update nanti
+                                            // Panggil fungsi onToggleStatus saat di-klik
+                                            onCheckedChange={() =>
+                                                onToggleStatus(todo)
+                                            }
                                         />
+                                        {/* === BATAS MODIFIKASI === */}
+
                                         <div
                                             className={
                                                 todo.is_finished
@@ -109,17 +126,18 @@ export default function HomePage({ auth, todos }) {
                                                     : ""
                                             }
                                         >
-                                            <p className="font-medium">
+                                            <label htmlFor={`todo-${todo.id}`} className="font-medium cursor-pointer"> {/* Tambahkan label */}
                                                 {todo.title}
-                                            </p>
+                                            </label>
                                             <p className="text-sm text-muted-foreground">
                                                 {todo.description ?? "-"}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {/* === Tombol Hapus & Dialog Konfirmasi === */}
+                                    {/* Tombol Hapus & Dialog (Biarkan) */}
                                     <Dialog>
+                                        {/* ... (isi dialog hapus) ... */}
                                         <DialogTrigger asChild>
                                             <Button
                                                 variant="ghost"
@@ -144,7 +162,6 @@ export default function HomePage({ auth, todos }) {
                                             <DialogFooter>
                                                 <Button
                                                     variant="outline"
-                                                    // Tombol "Batal" (cukup tutup dialog)
                                                 >
                                                     Batal
                                                 </Button>
@@ -159,8 +176,6 @@ export default function HomePage({ auth, todos }) {
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
-                                    {/* === Batas Tombol Hapus === */}
-
                                 </CardContent>
                             </Card>
                         ))}
@@ -175,6 +190,7 @@ export default function HomePage({ auth, todos }) {
 
                     {/* Footer (Biarkan) */}
                     <div className="text-center text-muted-foreground mt-10">
+                        {/* ... (isi footer) ... */}
                         <p>
                             <span
                                 dangerouslySetInnerHTML={{
