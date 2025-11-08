@@ -1,3 +1,4 @@
+import { useState } from "react"; // <--- TAMBAHKAN IMPORT useState
 import AppLayout from "@/layouts/AppLayout";
 import { router, useForm } from "@inertiajs/react";
 import {
@@ -21,13 +22,36 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react"; // <--- Tambahkan import Pencil
+import { Textarea } from "@/components/ui/textarea"; // <--- TAMBAHKAN IMPORT
+import { Label } from "@/components/ui/label"; // <--- TAMBAHKAN IMPORT
 
 export default function HomePage({ auth, todos }) {
-    // Form Tambah Data (Biarkan apa adanya)
+    // State untuk modal edit
+    const [editingTodo, setEditingTodo] = useState(null); // null = modal tertutup
+
+    // Form untuk TAMBAH data (biarkan)
     const { data, setData, post, processing, errors } = useForm({
         title: "",
     });
+
+    // Form untuk EDIT data
+    const {
+        data: editData,
+        setData: setEditData,
+        patch: updatePatch,
+        processing: editProcessing,
+        errors: editErrors,
+        reset: resetEditForm,
+    } = useForm({
+        id: "",
+        title: "",
+        description: "",
+    });
+
+    // --- Fungsi Handler ---
+
+    // Submit form TAMBAH (biarkan)
     const onSubmit = (e) => {
         e.preventDefault();
         post(route("todo.store"), {
@@ -35,27 +59,52 @@ export default function HomePage({ auth, todos }) {
         });
     };
 
-    // Fungsi Hapus Data (Biarkan apa adanya)
+    // Submit form EDIT
+    const onEditSubmit = (e) => {
+        e.preventDefault();
+        updatePatch(route("todo.update", { id: editData.id }), {
+            onSuccess: () => closeEditModal(),
+            preserveScroll: true,
+        });
+    };
+
+    // Hapus data (biarkan)
     const onDelete = (todoId) => {
         router.delete(route("todo.destroy", { id: todoId }), {
             preserveScroll: true,
         });
     };
 
-    // === FUNGSI BARU UNTUK UPDATE STATUS ===
+    // Toggle status (biarkan)
     const onToggleStatus = (todo) => {
         router.patch(route("todo.updateStatus", { id: todo.id }), null, {
-            // Opsi ini penting agar halaman tidak 'loncat' atau 'flash'
             preserveScroll: true,
-            preserveState: true, // Jaga state form tambah data
+            preserveState: true,
         });
+    };
+
+    // --- Fungsi Modal ---
+    const openEditModal = (todo) => {
+        // Isi form edit dengan data dari todo yang dipilih
+        setEditData({
+            id: todo.id,
+            title: todo.title,
+            description: todo.description ?? "", // Handle jika description null
+        });
+        // Tampilkan modal
+        setEditingTodo(todo);
+    };
+
+    const closeEditModal = () => {
+        setEditingTodo(null); // Tutup modal
+        resetEditForm(); // Kosongkan form edit
     };
 
     return (
         <AppLayout auth={auth}>
             <div className="container py-10">
                 <div className="max-w-2xl mx-auto">
-                    {/* Judul Halaman (Biarkan) */}
+                    {/* Judul Halaman (biarkan) */}
                     <div className="mb-6">
                         <h1 className="text-4xl font-bold mb-4">
                             <span>👋</span> Hai! {auth.name}
@@ -66,9 +115,8 @@ export default function HomePage({ auth, todos }) {
                         </p>
                     </div>
 
-                    {/* Form Tambah Data (Biarkan) */}
+                    {/* Form Tambah Data (biarkan) */}
                     <form onSubmit={onSubmit} className="mb-6">
-                        {/* ... (isi form) ... */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Buat Rencana Baru</CardTitle>
@@ -98,7 +146,7 @@ export default function HomePage({ auth, todos }) {
 
                     <Separator className="mb-6" />
 
-                    {/* Daftar Todos (Ini yang kita modifikasi) */}
+                    {/* Daftar Todos */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-semibold">
                             Rencanamu
@@ -107,18 +155,13 @@ export default function HomePage({ auth, todos }) {
                             <Card key={todo.id}>
                                 <CardContent className="p-6 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        
-                                        {/* === MODIFIKASI CHECKBOX === */}
                                         <Checkbox
-                                            id={`todo-${todo.id}`} // Tambahkan ID untuk aksesibilitas
+                                            id={`todo-${todo.id}`}
                                             checked={todo.is_finished}
-                                            // Panggil fungsi onToggleStatus saat di-klik
                                             onCheckedChange={() =>
                                                 onToggleStatus(todo)
                                             }
                                         />
-                                        {/* === BATAS MODIFIKASI === */}
-
                                         <div
                                             className={
                                                 todo.is_finished
@@ -126,7 +169,10 @@ export default function HomePage({ auth, todos }) {
                                                     : ""
                                             }
                                         >
-                                            <label htmlFor={`todo-${todo.id}`} className="font-medium cursor-pointer"> {/* Tambahkan label */}
+                                            <label
+                                                htmlFor={`todo-${todo.id}`}
+                                                className="font-medium cursor-pointer"
+                                            >
                                                 {todo.title}
                                             </label>
                                             <p className="text-sm text-muted-foreground">
@@ -135,52 +181,62 @@ export default function HomePage({ auth, todos }) {
                                         </div>
                                     </div>
 
-                                    {/* Tombol Hapus & Dialog (Biarkan) */}
-                                    <Dialog>
-                                        {/* ... (isi dialog hapus) ... */}
-                                        <DialogTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="text-destructive hover:text-destructive"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    Yakin ingin menghapus?
-                                                </DialogTitle>
-                                                <DialogDescription>
-                                                    Tindakan ini tidak dapat
-                                                    dibatalkan. Ini akan
-                                                    menghapus rencana Anda
-                                                    secara permanen.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <DialogFooter>
+                                    {/* === Grup Tombol Aksi (Edit & Hapus) === */}
+                                    <div className="flex items-center gap-2">
+                                        {/* Tombol EDIT */}
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => openEditModal(todo)}
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </Button>
+
+                                        {/* Tombol Hapus (Dialog) */}
+                                        <Dialog>
+                                            <DialogTrigger asChild>
                                                 <Button
-                                                    variant="outline"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="text-destructive hover:text-destructive"
                                                 >
-                                                    Batal
+                                                    <Trash2 className="w-4 h-4" />
                                                 </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    onClick={() =>
-                                                        onDelete(todo.id)
-                                                    }
-                                                >
-                                                    Hapus
-                                                </Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Yakin ingin menghapus?
+                                                    </DialogTitle>
+                                                    <DialogDescription>
+                                                        Tindakan ini tidak dapat
+                                                        dibatalkan. Ini akan
+                                                        menghapus rencana Anda
+                                                        secara permanen.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                    <Button variant="outline">
+                                                        Batal
+                                                    </Button>
+                                                    <Button
+                                                        variant="destructive"
+                                                        onClick={() =>
+                                                            onDelete(todo.id)
+                                                        }
+                                                    >
+                                                        Hapus
+                                                    </Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </div>
+                                    {/* === Batas Grup Tombol Aksi === */}
                                 </CardContent>
                             </Card>
                         ))}
 
-                        {/* Tampilkan pesan jika tidak ada todo (Biarkan) */}
+                        {/* Tampilkan pesan jika tidak ada todo (biarkan) */}
                         {todos.length === 0 && (
                             <p className="text-center text-muted-foreground">
                                 Kamu belum punya rencana.
@@ -188,9 +244,8 @@ export default function HomePage({ auth, todos }) {
                         )}
                     </div>
 
-                    {/* Footer (Biarkan) */}
+                    {/* Footer (biarkan) */}
                     <div className="text-center text-muted-foreground mt-10">
-                        {/* ... (isi footer) ... */}
                         <p>
                             <span
                                 dangerouslySetInnerHTML={{
@@ -207,6 +262,67 @@ export default function HomePage({ auth, todos }) {
                     </div>
                 </div>
             </div>
+
+            {/* === MODAL EDIT DATA === */}
+            <Dialog open={!!editingTodo} onOpenChange={closeEditModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Rencana</DialogTitle>
+                        <DialogDescription>
+                            Ubah judul atau deskripsi rencana Anda.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <form onSubmit={onEditSubmit} className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-title">Judul</Label>
+                            <Input
+                                id="edit-title"
+                                value={editData.title}
+                                onChange={(e) =>
+                                    setEditData("title", e.target.value)
+                                }
+                            />
+                            {editErrors.title && (
+                                <p className="text-sm text-red-600">
+                                    {editErrors.title}
+                                </p>
+                            )}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-description">Deskripsi</Label>
+                            <Textarea
+                                id="edit-description"
+                                placeholder="Tulis deskripsi singkat..."
+                                value={editData.description}
+                                onChange={(e) =>
+                                    setEditData("description", e.target.value)
+                                }
+                            />
+                            {editErrors.description && (
+                                <p className="text-sm text-red-600">
+                                    {editErrors.description}
+                                </p>
+                            )}
+                        </div>
+                        
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={closeEditModal}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={editProcessing}>
+                                {editProcessing ? "Menyimpan..." : "Simpan"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+            {/* === BATAS MODAL EDIT DATA === */}
+
         </AppLayout>
     );
 }
