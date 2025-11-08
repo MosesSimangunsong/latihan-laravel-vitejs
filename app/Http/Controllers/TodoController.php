@@ -52,4 +52,24 @@ class TodoController extends Controller
         // Redirect kembali ke halaman utama
         return redirect()->route('home');
     }
+
+    public function destroy(string $id)
+    {
+        // Ambil ID user yang sedang login
+        $userId = Auth::id();
+
+        // Cari todo berdasarkan ID dan user_id
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
+
+        // Jika tidak ditemukan, kembalikan ke home
+        if (!$todo) {
+            return redirect()->route('home');
+        }
+
+        // Hapus todo
+        $todo->delete();
+
+        // Redirect kembali ke halaman utama
+        return redirect()->route('home');
+    }
 }

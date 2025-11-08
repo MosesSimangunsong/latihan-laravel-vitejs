@@ -12,6 +12,7 @@ Route::middleware(['handle.inertia'])->group(function () {
         Route::post('/login/post', [AuthController::class, 'postLogin'])->name('auth.login.post');
         Route::get('/register', [AuthController::class, 'register'])->name('auth.register');
         Route::post('/register/post', [AuthController::class, 'postRegister'])->name('auth.register.post');
+        Route::delete('/todo/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
     });
 
     Route::get('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');

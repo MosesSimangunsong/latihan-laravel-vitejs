@@ -1,5 +1,5 @@
 import AppLayout from "@/layouts/AppLayout";
-import { router, useForm } from "@inertiajs/react"; // <--- Tambahkan useForm
+import { router, useForm } from "@inertiajs/react"; // <--- Pastikan 'router' ada di sini
 import {
     Card,
     CardContent,
@@ -8,8 +8,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input"; // <--- Tambahkan ini
-import { Button } from "@/components/ui/button"; // <--- Tambahkan ini
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,20 +21,25 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Trash2 } from "lucide-react"; // <--- Tambahkan import ikon
 
-// Terima props 'todos' dari controller
 export default function HomePage({ auth, todos }) {
-    // Setup state untuk form tambah data
+    // Form Tambah Data (Biarkan apa adanya)
     const { data, setData, post, processing, errors } = useForm({
         title: "",
     });
-
-    // Fungsi untuk submit form
     const onSubmit = (e) => {
         e.preventDefault();
         post(route("todo.store"), {
-            // Reset form setelah sukses
             onSuccess: () => setData("title", ""),
+        });
+    };
+
+    // FUNGSI UNTUK HAPUS DATA
+    const onDelete = (todoId) => {
+        router.delete(route("todo.destroy", { id: todoId }), {
+            // Jaga scroll position setelah redirect
+            preserveScroll: true,
         });
     };
 
@@ -42,7 +47,7 @@ export default function HomePage({ auth, todos }) {
         <AppLayout auth={auth}>
             <div className="container py-10">
                 <div className="max-w-2xl mx-auto">
-                    {/* Judul Halaman */}
+                    {/* Judul Halaman (Biarkan) */}
                     <div className="mb-6">
                         <h1 className="text-4xl font-bold mb-4">
                             <span>👋</span> Hai! {auth.name}
@@ -53,7 +58,7 @@ export default function HomePage({ auth, todos }) {
                         </p>
                     </div>
 
-                    {/* Form Tambah Data */}
+                    {/* Form Tambah Data (Biarkan) */}
                     <form onSubmit={onSubmit} className="mb-6">
                         <Card>
                             <CardHeader>
@@ -84,7 +89,7 @@ export default function HomePage({ auth, todos }) {
 
                     <Separator className="mb-6" />
 
-                    {/* Daftar Todos */}
+                    {/* Daftar Todos (Ini yang kita modifikasi) */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-semibold">
                             Rencanamu
@@ -112,12 +117,55 @@ export default function HomePage({ auth, todos }) {
                                             </p>
                                         </div>
                                     </div>
-                                    {/* Tombol Edit & Hapus akan ditambah nanti */}
+
+                                    {/* === Tombol Hapus & Dialog Konfirmasi === */}
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-destructive hover:text-destructive"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    Yakin ingin menghapus?
+                                                </DialogTitle>
+                                                <DialogDescription>
+                                                    Tindakan ini tidak dapat
+                                                    dibatalkan. Ini akan
+                                                    menghapus rencana Anda
+                                                    secara permanen.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <DialogFooter>
+                                                <Button
+                                                    variant="outline"
+                                                    // Tombol "Batal" (cukup tutup dialog)
+                                                >
+                                                    Batal
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        onDelete(todo.id)
+                                                    }
+                                                >
+                                                    Hapus
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                    {/* === Batas Tombol Hapus === */}
+
                                 </CardContent>
                             </Card>
                         ))}
 
-                        {/* Tampilkan pesan jika tidak ada todo */}
+                        {/* Tampilkan pesan jika tidak ada todo (Biarkan) */}
                         {todos.length === 0 && (
                             <p className="text-center text-muted-foreground">
                                 Kamu belum punya rencana.
@@ -125,7 +173,7 @@ export default function HomePage({ auth, todos }) {
                         )}
                     </div>
 
-                    {/* Footer */}
+                    {/* Footer (Biarkan) */}
                     <div className="text-center text-muted-foreground mt-10">
                         <p>
                             <span
