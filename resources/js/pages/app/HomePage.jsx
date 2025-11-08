@@ -22,7 +22,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trash2, Pencil } from "lucide-react"; // <--- Tambahkan import Pencil
+import { Trash2, Pencil, Eye, ClipboardList } from "lucide-react"; 
 import { Textarea } from "@/components/ui/textarea"; // <--- TAMBAHKAN IMPORT
 import { Label } from "@/components/ui/label"; // <--- TAMBAHKAN IMPORT
 
@@ -152,116 +152,152 @@ export default function HomePage({ auth, todos }) {
 
                     <Separator className="mb-6" />
 
-                    {/* Daftar Todos */}
-                    <div className="space-y-4">
-                        <h2 className="text-2xl font-semibold">
+                    <div>
+                        <h2 className="text-2xl font-semibold mb-4">
                             Rencanamu
                         </h2>
-                        {todos.map((todo) => (
-                            <Card key={todo.id}>
-                                {/* 1. Gambar Cover */}
-                                {todo.cover_url && (
-                                    <img
-                                        src={todo.cover_url}
-                                        alt={todo.title}
-                                        className="w-full h-48 object-cover rounded-t-lg"
-                                    />
-                                )}
+                        
+                        {/* --- (MODIFIKASI 2) ---
+                         Ubah 'space-y-4' menjadi layout Grid
+                        --- (BATAS MODIFIKASI 2) --- */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {todos.map((todo) => (
+                                // --- (MODIFIKASI 3) ---
+                                // Tambahkan flex-col agar footer menempel di bawah
+                                // --- (BATAS MODIFIKASI 3) ---
+                                <Card
+                                    key={todo.id}
+                                    className="flex flex-col justify-between"
+                                >
+                                    <div>
+                                        {/* --- (MODIFIKASI 4) ---
+                                         Blok Gambar dan Placeholder
+                                        --- (BATAS MODIFIKASI 4) --- */}
+                                        <div className="relative w-full h-48 bg-secondary rounded-t-lg flex items-center justify-center">
+                                            {todo.cover_url ? (
+                                                <img
+                                                    src={todo.cover_url}
+                                                    alt={todo.title}
+                                                    className="w-full h-full object-cover rounded-t-lg"
+                                                />
+                                            ) : (
+                                                <ClipboardList className="w-16 h-16 text-muted-foreground opacity-50" />
+                                            )}
+                                        </div>
 
-                                {/* 2. Judul */}
-                                <CardHeader>
-                                    <CardTitle>
-                                        <Link
-                                            href={route("todo.show", {
-                                                id: todo.id,
-                                            })}
-                                            className="hover:underline"
-                                        >
-                                            {todo.title}
-                                        </Link>
-                                    </CardTitle>
-                                </CardHeader>
+                                        {/* 2. Judul */}
+                                        <CardHeader>
+                                            {/* --- (MODIFIKASI 5) ---
+                                             Gunakan line-clamp agar judul tidak terlalu panjang
+                                            --- (BATAS MODIFIKASI 5) --- */}
+                                            <CardTitle className="line-clamp-1">
+                                                {todo.title}
+                                            </CardTitle>
+                                        </CardHeader>
 
-                                {/* 3. Deskripsi */}
-                                <CardContent>
-                                    <p className="text-sm text-muted-foreground">
-                                        {todo.description ??
-                                            "Tidak ada deskripsi."}
-                                    </p>
-                                </CardContent>
-
-                                {/* 4. Aksi (Checkbox & Tombol) */}
-                                <CardFooter className="flex justify-between items-center">
-                                    {/* Checkbox di kiri */}
-                                    <div className="flex items-center gap-2">
-                                        <Checkbox
-                                            id={`todo-${todo.id}`}
-                                            checked={todo.is_finished}
-                                            onCheckedChange={() =>
-                                                onToggleStatus(todo)
-                                            }
-                                        />
-                                        <label
-                                            htmlFor={`todo-${todo.id}`}
-                                            className="text-sm font-medium cursor-pointer"
-                                        >
-                                            {todo.is_finished
-                                                ? "Selesai"
-                                                : "Tandai Selesai"}
-                                        </label>
+                                        {/* 3. Deskripsi */}
+                                        <CardContent>
+                                            {/* --- (MODIFIKASI 6) ---
+                                             Gunakan line-clamp agar deskripsi singkat
+                                            --- (BATAS MODIFIKASI 6) --- */}
+                                            <p className="text-sm text-muted-foreground line-clamp-2 h-10">
+                                                {todo.description ??
+                                                    "Tidak ada deskripsi."}
+                                            </p>
+                                        </CardContent>
                                     </div>
 
-                                    {/* Tombol di kanan */}
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => openEditModal(todo)}
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </Button>
+                                    {/* 4. Aksi (Footer) - (Tidak ada perubahan struktur, hanya penyesuaian) */}
+                                    <CardFooter className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`todo-${todo.id}`}
+                                                checked={todo.is_finished}
+                                                onCheckedChange={() =>
+                                                    onToggleStatus(todo)
+                                                }
+                                            />
+                                            <label
+                                                htmlFor={`todo-${todo.id}`}
+                                                className="text-sm font-medium cursor-pointer"
+                                            >
+                                                {todo.is_finished
+                                                    ? "Selesai"
+                                                    : "Selesai"}
+                                            </label>
+                                        </div>
 
-                                        <Dialog>
-                                            <DialogTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-destructive hover:text-destructive"
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                asChild
+                                                variant="ghost"
+                                                size="icon"
+                                            >
+                                                <Link
+                                                    href={route("todo.show", {
+                                                        id: todo.id,
+                                                    })}
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>
-                                                        Yakin ingin menghapus?
-                                                    </DialogTitle>
-                                                    <DialogDescription>
-                                                        Tindakan ini tidak dapat
-                                                        dibatalkan. Ini akan
-                                                        menghapus rencana Anda
-                                                        secara permanen.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <DialogFooter>
-                                                    <Button variant="outline">
-                                                        Batal
-                                                    </Button>
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
+                                            </Button>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                    openEditModal(todo)
+                                                }
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </Button>
+
+                                            <Dialog>
+                                                <DialogTrigger asChild>
                                                     <Button
-                                                        variant="destructive"
-                                                        onClick={() =>
-                                                            onDelete(todo.id)
-                                                        }
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-destructive hover:text-destructive"
                                                     >
-                                                        Hapus
+                                                        <Trash2 className="w-4 h-4" />
                                                     </Button>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                    </div>
-                                </CardFooter>
-                            </Card>
-                        ))}
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>
+                                                            Yakin ingin
+                                                            menghapus?
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            Tindakan ini tidak
+                                                            dapat dibatalkan. Ini
+                                                            akan menghapus
+                                                            rencana Anda secara
+                                                            permanen.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <DialogFooter>
+                                                        <Button variant="outline">
+                                                            Batal
+                                                        </Button>
+                                                        <Button
+                                                            variant="destructive"
+                                                            onClick={() =>
+                                                                onDelete(
+                                                                    todo.id
+                                                                )
+                                                            }
+                                                        >
+                                                            Hapus
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
 
                         {/* Tampilkan pesan jika tidak ada todo (biarkan) */}
                         {todos.length === 0 && (
