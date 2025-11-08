@@ -159,8 +159,41 @@ export default function HomePage({ auth, todos }) {
                         </h2>
                         {todos.map((todo) => (
                             <Card key={todo.id}>
-                                <CardContent className="p-6 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
+                                {/* 1. Gambar Cover */}
+                                {todo.cover_url && (
+                                    <img
+                                        src={todo.cover_url}
+                                        alt={todo.title}
+                                        className="w-full h-48 object-cover rounded-t-lg"
+                                    />
+                                )}
+
+                                {/* 2. Judul */}
+                                <CardHeader>
+                                    <CardTitle>
+                                        <Link
+                                            href={route("todo.show", {
+                                                id: todo.id,
+                                            })}
+                                            className="hover:underline"
+                                        >
+                                            {todo.title}
+                                        </Link>
+                                    </CardTitle>
+                                </CardHeader>
+
+                                {/* 3. Deskripsi */}
+                                <CardContent>
+                                    <p className="text-sm text-muted-foreground">
+                                        {todo.description ??
+                                            "Tidak ada deskripsi."}
+                                    </p>
+                                </CardContent>
+
+                                {/* 4. Aksi (Checkbox & Tombol) */}
+                                <CardFooter className="flex justify-between items-center">
+                                    {/* Checkbox di kiri */}
+                                    <div className="flex items-center gap-2">
                                         <Checkbox
                                             id={`todo-${todo.id}`}
                                             checked={todo.is_finished}
@@ -168,33 +201,18 @@ export default function HomePage({ auth, todos }) {
                                                 onToggleStatus(todo)
                                             }
                                         />
-                                        <div
-                                            className={
-                                                todo.is_finished
-                                                    ? "line-through text-muted-foreground"
-                                                    : ""
-                                            }
+                                        <label
+                                            htmlFor={`todo-${todo.id}`}
+                                            className="text-sm font-medium cursor-pointer"
                                         >
-                                            <label
-                                                htmlFor={`todo-${todo.id}`}
-                                                className="font-medium cursor-pointer"
-                                            >
-                                                <Link
-                                                    href={route("todo.show", { id: todo.id })}
-                                                    className="hover:underline"
-                                                >
-                                                    {todo.title}
-                                                </Link>
-                                            </label>
-                                            <p className="text-sm text-muted-foreground">
-                                                {todo.description ?? "-"}
-                                            </p>
-                                        </div>
+                                            {todo.is_finished
+                                                ? "Selesai"
+                                                : "Tandai Selesai"}
+                                        </label>
                                     </div>
 
-                                    {/* === Grup Tombol Aksi (Edit & Hapus) === */}
+                                    {/* Tombol di kanan */}
                                     <div className="flex items-center gap-2">
-                                        {/* Tombol EDIT */}
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -203,7 +221,6 @@ export default function HomePage({ auth, todos }) {
                                             <Pencil className="w-4 h-4" />
                                         </Button>
 
-                                        {/* Tombol Hapus (Dialog) */}
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <Button
@@ -242,8 +259,7 @@ export default function HomePage({ auth, todos }) {
                                             </DialogContent>
                                         </Dialog>
                                     </div>
-                                    {/* === Batas Grup Tombol Aksi === */}
-                                </CardContent>
+                                </CardFooter>
                             </Card>
                         ))}
 
