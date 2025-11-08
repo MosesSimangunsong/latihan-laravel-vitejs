@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class TodoController extends Controller
 {
@@ -134,5 +135,39 @@ class TodoController extends Controller
         return redirect()->route('home');
     }
 
-    
+    public function show(string $id)
+    {
+        // Ambil ID user yang sedang login
+        $userId = Auth::id();
+
+        // Cari todo berdasarkan ID dan user_id
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
+
+        // Jika tidak ditemukan, kembalikan ke home (atau tampilkan 404)
+        if (!$todo) {
+            return redirect()->route('home');
+        }
+
+        // --- Persiapkan data untuk view ---
+
+        // 1. Buat URL Cover
+        if ($todo->cover) {
+            $todo->cover_url = Storage::disk('public')->url($todo->cover);
+        }
+
+        // 2. Buat Teks Status
+        $todo->status_text = $todo->is_finished ? 'Selesai' : 'Belum Selesai';
+
+        // 3. Format Timestamp
+        $todo->created_at_formatted = Carbon::parse($todo->created_at)->translatedFormat('d F Y, H:i');
+        $todo->updated_at_formatted = Carbon::parse($todo->updated_at)->translatedFormat('d F Y, H:i');
+        
+        // --- Selesai persiapan data ---
+
+        // Render halaman baru, kirim 'todo' dan 'auth'
+        return Inertia::render('app/TodoDetailPage', [
+            'todo' => $todo,
+            'auth' => Auth::user(),
+        ]);
+    }
 }

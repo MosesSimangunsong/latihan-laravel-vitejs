@@ -1,6 +1,6 @@
 import { useState } from "react"; // <--- TAMBAHKAN IMPORT useState
+import { Link, router, useForm } from "@inertiajs/react";
 import AppLayout from "@/layouts/AppLayout";
-import { router, useForm } from "@inertiajs/react";
 import {
     Card,
     CardContent,
@@ -179,7 +179,12 @@ export default function HomePage({ auth, todos }) {
                                                 htmlFor={`todo-${todo.id}`}
                                                 className="font-medium cursor-pointer"
                                             >
-                                                {todo.title}
+                                                <Link
+                                                    href={route("todo.show", { id: todo.id })}
+                                                    className="hover:underline"
+                                                >
+                                                    {todo.title}
+                                                </Link>
                                             </label>
                                             <p className="text-sm text-muted-foreground">
                                                 {todo.description ?? "-"}

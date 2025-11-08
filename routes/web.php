@@ -16,6 +16,7 @@ Route::middleware(['handle.inertia'])->group(function () {
         Route::patch('/todo/{id}/status', [TodoController::class, 'updateStatus'])->name('todo.updateStatus');
         Route::patch('/todo/{id}', [TodoController::class, 'update'])->name('todo.update');
         Route::post('/todo/{id}', [TodoController::class, 'update'])->name('todo.update');
+        Route::get('/todo/{id}', [TodoController::class, 'show'])->name('todo.show');
     });
 
     Route::get('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
