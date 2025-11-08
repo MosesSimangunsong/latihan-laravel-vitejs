@@ -40,12 +40,15 @@ export default function HomePage({ auth, todos }) {
         data: editData,
         setData: setEditData,
         patch: updatePatch,
+        post: updatePost,
         processing: editProcessing,
         errors: editErrors,
         reset: resetEditForm,
     } = useForm({
         id: "",
         title: "",
+        cover: null,
+        _method: "PATCH",
         description: "",
     });
 
@@ -62,9 +65,12 @@ export default function HomePage({ auth, todos }) {
     // Submit form EDIT
     const onEditSubmit = (e) => {
         e.preventDefault();
-        updatePatch(route("todo.update", { id: editData.id }), {
+        // Gunakan 'updatePost' karena kita mengirim file
+        updatePost(route("todo.update", { id: editData.id }), {
             onSuccess: () => closeEditModal(),
             preserveScroll: true,
+            // 'forceFormData: true' akan otomatis ditambahkan oleh Inertia
+            // saat mendeteksi ada objek File (cover)
         });
     };
 
@@ -85,14 +91,14 @@ export default function HomePage({ auth, todos }) {
 
     // --- Fungsi Modal ---
     const openEditModal = (todo) => {
-        // Isi form edit dengan data dari todo yang dipilih
-        setEditData({
+        setEditData({ // <-- Isi form
             id: todo.id,
             title: todo.title,
-            description: todo.description ?? "", // Handle jika description null
+            description: todo.description ?? "",
+            cover: null, // <-- Selalu reset input file
+            _method: "PATCH",
         });
-        // Tampilkan modal
-        setEditingTodo(todo);
+        setEditingTodo(todo); // <-- Simpan data todo (termasuk cover_url)
     };
 
     const closeEditModal = () => {
@@ -269,10 +275,23 @@ export default function HomePage({ auth, todos }) {
                     <DialogHeader>
                         <DialogTitle>Edit Rencana</DialogTitle>
                         <DialogDescription>
-                            Ubah judul atau deskripsi rencana Anda.
+                            Ubah judul, deskripsi, atau cover rencana Anda.
                         </DialogDescription>
                     </DialogHeader>
-                    
+
+                    {/* --- PREVIEW COVER LAMA --- */}
+                    {editingTodo?.cover_url && (
+                        <div className="my-4">
+                            <p className="text-sm font-medium mb-2">Cover Saat Ini:</p>
+                            <img
+                                src={editingTodo.cover_url}
+                                alt={editingTodo.title}
+                                className="w-full h-40 object-cover rounded-md"
+                            />
+                        </div>
+                    )}
+                    {/* --- BATAS PREVIEW --- */}
+
                     <form onSubmit={onEditSubmit} className="grid gap-4 py-4">
                         <div className="grid gap-2">
                             <Label htmlFor="edit-title">Judul</Label>
@@ -306,6 +325,25 @@ export default function HomePage({ auth, todos }) {
                             )}
                         </div>
                         
+                        {/* --- INPUT FILE COVER BARU --- */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-cover">Ubah Cover (Opsional)</Label>
+                            <Input
+                                id="edit-cover"
+                                type="file"
+                                onChange={(e) =>
+                                    setEditData("cover", e.target.files[0])
+                                }
+                                // Kita tidak bisa set 'value' untuk input file
+                            />
+                            {editErrors.cover && (
+                                <p className="text-sm text-red-600">
+                                    {editErrors.cover}
+                                </p>
+                            )}
+                        </div>
+                        {/* --- BATAS INPUT FILE --- */}
+
                         <DialogFooter>
                             <Button
                                 type="button"

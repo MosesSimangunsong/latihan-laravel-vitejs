@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class TodoController extends Controller
@@ -20,13 +21,24 @@ class TodoController extends Controller
         // Ambil semua data todos milik user tersebut
         $todos = Todo::where('user_id', $userId)->get();
 
-        // AmBIL DATA AUTH USER
-        $auth = Auth::user(); // <--- TAMBAHKAN INI
+        // Ambil data auth user
+        $auth = Auth::user();
+
+        // --- TAMBAHKAN LOGIKA INI ---
+        // Buat URL lengkap untuk setiap cover
+        $todos->transform(function ($todo) {
+            if ($todo->cover) {
+                // 'cover_url' adalah properti baru yang kita buat 'on-the-fly'
+                $todo->cover_url = Storage::disk('public')->url($todo->cover);
+            }
+            return $todo;
+        });
+        // --- BATAS LOGIKA TAMBAHAN ---
 
         // Kirim data ke view
         return Inertia::render('app/HomePage', [
             'todos' => $todos,
-            'auth' => $auth, // <--- TAMBAHKAN INI
+            'auth' => $auth,
         ]);
     }
 
@@ -121,4 +133,6 @@ class TodoController extends Controller
         // Redirect kembali
         return redirect()->route('home');
     }
+
+    
 }
