@@ -68,7 +68,6 @@ export default function HomePage({ auth, todos }) {
         // Gunakan 'updatePost' karena kita mengirim file
         updatePost(route("todo.update", { id: editData.id }), {
             onSuccess: () => closeEditModal(),
-            preserveScroll: true,
             // 'forceFormData: true' akan otomatis ditambahkan oleh Inertia
             // saat mendeteksi ada objek File (cover)
         });

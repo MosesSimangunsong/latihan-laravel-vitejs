@@ -22,14 +22,27 @@ Route::middleware(['handle.inertia'])->group(function () {
     Route::get('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
     // Protected Routes
+    Route::get('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    // Protected Routes (Aplikasi Utama)
     Route::group(['middleware' => 'check.auth'], function () {
-        // GANTI baris ini:
-        // Route::get('/', [HomeController::class, 'home'])->name('home');
-
-        // DENGAN baris ini:
+        
+        // Read (List)
         Route::get('/', [TodoController::class, 'index'])->name('home');
+        
+        // Read (Detail)
+        Route::get('/todo/{id}', [TodoController::class, 'show'])->name('todo.show');
 
-        // TAMBAHKAN baris ini untuk menyimpan data:
+        // Create
         Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
+
+        // Update (HARUS POST, bukan PATCH, untuk file upload)
+        Route::post('/todo/{id}', [TodoController::class, 'update'])->name('todo.update');
+
+        // Delete
+        Route::delete('/todo/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
+        
+        // Update Status (Ini boleh PATCH)
+        Route::patch('/todo/{id}/status', [TodoController::class, 'updateStatus'])->name('todo.updateStatus');
     });
 });

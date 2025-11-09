@@ -5,169 +5,163 @@ namespace App\Http\Controllers;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage; // Penting untuk file
 use Inertia\Inertia;
-use Carbon\Carbon;
+use Carbon\Carbon; // Penting untuk format tanggal
 
 class TodoController extends Controller
 {
     /**
-     * Menampilkan halaman utama dan data todos
+     * Menampilkan list semua todos
      */
     public function index()
     {
-        // Ambil ID user yang sedang login
         $userId = Auth::id();
+        
+        // Ambil todos
+        $todos = Todo::where('user_id', $userId)
+            ->select('id', 'title', 'description', 'cover', 'is_finished') // Hanya ambil data yg perlu
+            ->get();
 
-        // Ambil semua data todos milik user tersebut
-        $todos = Todo::where('user_id', $userId)->get();
-
-        // Ambil data auth user
-        $auth = Auth::user();
-
-        // --- TAMBAHKAN LOGIKA INI ---
-        // Buat URL lengkap untuk setiap cover
+        // Buat URL publik untuk gambar
         $todos->transform(function ($todo) {
             if ($todo->cover) {
-                // 'cover_url' adalah properti baru yang kita buat 'on-the-fly'
-                $todo->cover_url = Storage::disk('public')->url($todo->cover);
+                // Ini akan menghasilkan /storage/todos/namafile.jpg
+                $todo->cover_url = Storage::url($todo->cover); 
             }
             return $todo;
         });
-        // --- BATAS LOGIKA TAMBAHAN ---
 
-        // Kirim data ke view
         return Inertia::render('app/HomePage', [
+            'auth' => Auth::user(),
             'todos' => $todos,
-            'auth' => $auth,
         ]);
     }
 
     /**
-     * Menyimpan data todo baru
+     * Menampilkan halaman detail
      */
-    public function store(Request $request)
-    {
-        // Validasi request
-        $request->validate([
-            'title' => 'required|string|max:100',
-        ]);
-
-        // Ambil ID user yang sedang login
-        $userId = Auth::id();
-
-        // Buat todo baru
-        Todo::create([
-            'user_id' => $userId,
-            'title' => $request->title,
-        ]);
-
-        // Redirect kembali ke halaman utama
-        return redirect()->route('home');
-    }
-
-    public function destroy(string $id)
-    {
-        // Ambil ID user yang sedang login
-        $userId = Auth::id();
-
-        // Cari todo berdasarkan ID dan user_id
-        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
-
-        // Jika tidak ditemukan, kembalikan ke home
-        if (!$todo) {
-            return redirect()->route('home');
-        }
-
-        // Hapus todo
-        $todo->delete();
-
-        // Redirect kembali ke halaman utama
-        return redirect()->route('home');
-    }
-
-    public function updateStatus(string $id)
-    {
-        // Ambil ID user yang sedang login
-        $userId = Auth::id();
-
-        // Cari todo berdasarkan ID dan user_id
-        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
-
-        // Jika tidak ditemukan, kembalikan ke home
-        if (!$todo) {
-            return redirect()->route('home');
-        }
-
-        // Ubah status (toggle: jika true jadi false, jika false jadi true)
-        $todo->is_finished = !$todo->is_finished;
-        $todo->save();
-
-        // Redirect kembali
-        return redirect()->route('home');
-    }
-
-    public function update(Request $request, string $id)
-    {
-        // Validasi request
-        $request->validate([
-            'title' => 'required|string|max:100',
-            'description' => 'nullable|string',
-        ]);
-
-        // Ambil ID user yang sedang login
-        $userId = Auth::id();
-
-        // Cari todo berdasarkan ID dan user_id
-        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
-
-        // Jika tidak ditemukan, kembalikan ke home
-        if (!$todo) {
-            return redirect()->route('home');
-        }
-
-        // Update data todo
-        $todo->title = $request->title;
-        $todo->description = $request->description;
-        $todo->save();
-
-        // Redirect kembali
-        return redirect()->route('home');
-    }
-
     public function show(string $id)
     {
-        // Ambil ID user yang sedang login
         $userId = Auth::id();
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->firstOrFail();
 
-        // Cari todo berdasarkan ID dan user_id
-        $todo = Todo::where('id', $id)->where('user_id', $userId)->first();
-
-        // Jika tidak ditemukan, kembalikan ke home (atau tampilkan 404)
-        if (!$todo) {
-            return redirect()->route('home');
-        }
-
-        // --- Persiapkan data untuk view ---
-
-        // 1. Buat URL Cover
+        // Buat URL Gambar
         if ($todo->cover) {
-            $todo->cover_url = Storage::disk('public')->url($todo->cover);
+            $todo->cover_url = Storage::url($todo->cover);
         }
 
-        // 2. Buat Teks Status
+        // Format data
         $todo->status_text = $todo->is_finished ? 'Selesai' : 'Belum Selesai';
-
-        // 3. Format Timestamp
         $todo->created_at_formatted = Carbon::parse($todo->created_at)->translatedFormat('d F Y, H:i');
         $todo->updated_at_formatted = Carbon::parse($todo->updated_at)->translatedFormat('d F Y, H:i');
         
-        // --- Selesai persiapan data ---
-
-        // Render halaman baru, kirim 'todo' dan 'auth'
         return Inertia::render('app/TodoDetailPage', [
-            'todo' => $todo,
             'auth' => Auth::user(),
+            'todo' => $todo,
+        ]);
+    }
+
+    /**
+     * Menyimpan Todo baru
+     */
+    public function store(Request $request)
+    {
+        $userId = Auth::id();
+
+        $request->validate([
+            'title' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi 'cover'
+        ]);
+
+        $coverPath = null;
+        if ($request->hasFile('cover')) {
+            // Simpan file ke storage/app/public/todos
+            $coverPath = $request->file('cover')->store('todos', 'public');
+        }
+
+        Todo::create([
+            'user_id' => $userId,
+            'title' => $request->title,
+            'description' => $request->description,
+            'cover' => $coverPath, // Simpan path
+            'is_finished' => false,
+        ]);
+
+        return redirect()->route('home');
+    }
+
+    /**
+     * Update Todo yang ada
+     */
+    public function update(Request $request, string $id)
+    {
+        $userId = Auth::id();
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        $request->validate([
+            'title' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi 'cover'
+        ]);
+
+        $coverPath = $todo->cover; // Ambil path lama
+
+        if ($request->hasFile('cover')) {
+            // 1. Hapus file lama jika ada
+            if ($todo->cover) {
+                Storage::disk('public')->delete($todo->cover);
+            }
+
+            // 2. Simpan file baru
+            $coverPath = $request->file('cover')->store('todos', 'public');
+        }
+
+        // Update data di database
+        $todo->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'cover' => $coverPath, // Simpan path baru (atau lama jika tidak diubah)
+        ]);
+
+        return redirect()->route('home');
+    }
+
+    /**
+     * Hapus Todo
+     */
+    public function destroy(string $id)
+    {
+        $userId = Auth::id();
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        // Hapus file gambar dari storage jika ada
+        if ($todo->cover) {
+            Storage::disk('public')->delete($todo->cover);
+        }
+
+        // Hapus data dari database
+        $todo->delete();
+
+        return redirect()->route('home');
+    }
+
+    /**
+     * Update status selesai/belum
+     */
+    public function updateStatus(string $id)
+    {
+        $userId = Auth::id();
+        $todo = Todo::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        $todo->is_finished = !$todo->is_finished;
+        $todo->save();
+
+        // Gunakan 'preserveState' agar 'flash' tidak hilang
+        return redirect()->route('home', [], 303, [
+            'preserveState' => true,
+            'preserveScroll' => true,
         ]);
     }
 }
