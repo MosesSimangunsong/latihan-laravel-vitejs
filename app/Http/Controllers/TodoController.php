@@ -21,6 +21,7 @@ class TodoController extends Controller
         // Ambil todos
         $todos = Todo::where('user_id', $userId)
             ->select('id', 'title', 'description', 'cover', 'is_finished') // Hanya ambil data yg perlu
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         // Buat URL publik untuk gambar
