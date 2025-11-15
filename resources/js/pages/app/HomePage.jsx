@@ -31,106 +31,135 @@ import {
 import "trix/dist/trix.css";
 import "trix";
 
-// --- Komponen Sub: Todo Item ---
+const getPlaceholderImage = (title = "L") =>
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        title
+    )}&background=e9ecef&color=6c757d&size=256`;
+
+// =========================================================
+// --- KOMPONEN SUB: Todo Item (DIMODIFIKASI KE TAMPILAN CARD) ---
+// =========================================================
 const TodoItem = ({ todo, onEdit, onDelete, onToggleStatus }) => {
+    const isFinished = todo.is_finished;
+    const statusGradient = isFinished
+        ? "bg-linear-to-r from-emerald-400 to-green-500"
+        : "bg-linear-to-r from-blue-400 to-purple-500";
+
     return (
-        <div className="group relative p-6 border border-gray-200 rounded-2xl mb-4 bg-white hover:shadow-2xl transition-all duration-300 hover:border-blue-100 hover:scale-[1.02] backdrop-blur-sm bg-opacity-95">
-            <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
+        <Card className="group relative h-full flex flex-col justify-between overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:translate-y-[-2px] border-2 border-gray-100 hover:border-blue-200">
+            {/* Gradient Line Top (Visual status indicator) */}
+            <div
+                className={`absolute top-0 left-0 right-0 h-1.5 ${statusGradient}`}
+            ></div>
+
+            {/* Cover Image (if available) */}
+            <div className="relative h-36 w-full overflow-hidden">
+                <img
+                    src={
+                        todo.cover_url
+                            ? todo.cover_url
+                            : getPlaceholderImage(todo.title)
+                    }
+                    alt={todo.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/10"></div>
+            </div>
+
+            <CardContent className="p-5 flex flex-col flex-grow">
+                {/* Header (Status Toggle & Actions) */}
+                <div className="flex items-center justify-between mb-3 -mt-2">
                     <button
                         onClick={() => onToggleStatus(todo)}
-                        className="mt-1 transform hover:scale-110 transition-transform duration-200"
+                        className="p-1 -ml-1 transform hover:scale-110 transition-transform duration-200"
+                        title={
+                            isFinished
+                                ? "Tandai Belum Selesai"
+                                : "Tandai Selesai"
+                        }
                     >
-                        {todo.is_finished ? (
-                            <div className="relative">
-                                <CheckCircle2 className="h-7 w-7 text-emerald-500 drop-shadow-sm" />
-                                <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-20"></div>
-                            </div>
+                        {isFinished ? (
+                            <CheckCircle2 className="h-6 w-6 text-emerald-500 drop-shadow-md" />
                         ) : (
-                            <Circle className="h-7 w-7 text-gray-300 hover:text-blue-400 transition-colors" />
+                            <Circle className="h-6 w-6 text-gray-300 hover:text-blue-500 transition-colors" />
                         )}
                     </button>
 
-                    <div className="flex gap-4 flex-1">
-                        {todo.cover_url && (
-                            <div className="relative">
-                                <img
-                                    src={todo.cover_url}
-                                    alt={todo.title}
-                                    className="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-md"
-                                />
-                                <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 to-purple-500/10 rounded-xl"></div>
-                            </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <h3
-                                className={`font-semibold text-lg mb-2 ${
-                                    todo.is_finished
-                                        ? "line-through text-gray-400"
-                                        : "text-gray-800"
-                                }`}
-                            >
-                                {todo.title}
-                            </h3>
-                            {todo.description && (
-                                <div
-                                    className="text-gray-600 line-clamp-2 prose prose-sm max-w-none leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                        __html: todo.description,
-                                    }}
-                                />
-                            )}
-                            <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
-                                <Clock className="h-4 w-4" />
-                                <span>
-                                    {new Date(
-                                        todo.created_at
-                                    ).toLocaleDateString("id-ID", {
-                                        day: "numeric",
-                                        month: "short",
-                                        year: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
-                                </span>
-                            </div>
-                        </div>
+                    {/* Actions: Edit & Delete (always visible but subtle) */}
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(todo);
+                            }}
+                            className="h-8 w-8 rounded-full text-blue-500 hover:bg-blue-100 transition-colors opacity-70 group-hover:opacity-100"
+                            title="Edit Tugas"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full text-red-500 hover:bg-red-100 transition-colors opacity-70 group-hover:opacity-100"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(todo.id);
+                            }}
+                            title="Hapus Tugas"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1 ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(todo)}
-                        className="h-9 w-9 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200"
-                    >
-                        <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
-                        onClick={() => onDelete(todo.id)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
+                {/* Main Content (Title) */}
+                <h3
+                    className={`font-extrabold text-xl mb-2 leading-tight ${
+                        isFinished
+                            ? "line-through text-gray-500"
+                            : "text-gray-900"
+                    }`}
+                >
+                    {todo.title}
+                </h3>
 
-            {/* Gradient Border Bottom */}
-            <div
-                className={`absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl ${
-                    todo.is_finished
-                        ? "bg-linear-to-r from-emerald-400 to-green-500"
-                        : "bg-linear-to-r from-blue-400 to-purple-500"
-                }`}
-            ></div>
-        </div>
+                {/* Description (Trix HTML Content) */}
+                {todo.description && (
+                    <div className="flex-grow min-h-0 mb-4">
+                        <div
+                            className={`text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none leading-relaxed overflow-hidden ${
+                                isFinished ? "text-gray-400" : ""
+                            }`}
+                            dangerouslySetInnerHTML={{
+                                __html: todo.description,
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* Timestamp Footer */}
+                <div className="mt-auto flex items-center gap-2 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    <span>
+                        {new Date(todo.created_at).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </span>
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 
-// --- Komponen Sub: Trix Editor Wrapper ---
+// =========================================================
+// --- Komponen Sub: Trix Editor Wrapper (TIDAK BERUBAH) ---
+// =========================================================
 const TrixEditor = ({ value, onChange, placeholder, ...props }) => {
     const trixRef = useRef(null);
     const lastValueRef = useRef(value);
@@ -201,7 +230,10 @@ const TrixEditor = ({ value, onChange, placeholder, ...props }) => {
         </div>
     );
 };
-// --- Komponen Sub: Modal Form (Add/Edit) ---
+
+// =========================================================
+// --- Komponen Sub: Modal Form (Add/Edit) (TIDAK BERUBAH) ---
+// =========================================================
 const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
     const { data, setData, post, processing, reset, errors, clearErrors } =
         useForm({
@@ -210,7 +242,7 @@ const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
             is_finished: todoToEdit?.is_finished || false,
             cover: null,
             _method: todoToEdit ? "PUT" : "POST",
-             remove_cover: false,
+            remove_cover: false,
         });
 
     useEffect(() => {
@@ -221,6 +253,7 @@ const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
                 is_finished: todoToEdit.is_finished,
                 cover: null,
                 _method: "PUT",
+                remove_cover: false,
             });
         } else {
             reset();
@@ -439,7 +472,9 @@ const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
     );
 };
 
-// --- Komponen Utama: Dashboard ---
+// =========================================================
+// --- Komponen Utama: Dashboard (BAGIAN LIST DIMODIFIKASI) ---
+// =========================================================
 export default function HomePage() {
     const { auth, todos, stats, filters, flash } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -548,10 +583,6 @@ export default function HomePage() {
                                 <h1 className="text-4xl font-bold ">
                                     Selamat Datang, {auth.name}! 👋
                                 </h1>
-                                <p className="text-gray-600 text-lg">
-                                    Kelola tugas harianmu dengan mudah dan
-                                    efisien.
-                                </p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -685,10 +716,11 @@ export default function HomePage() {
                         </Alert>
                     )}
 
-                    {/* Todo List */}
+                    {/* Todo List - Diubah menjadi Grid Card */}
                     <Card className="border-0 shadow-lg rounded-2xl bg-white overflow-hidden">
                         <CardContent className="p-6">
-                            <div className="space-y-4">
+                            {/* Inilah bagian yang diubah menjadi Grid 3 Kolom Responsif */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {todos.data.length > 0 ? (
                                     todos.data.map((todo) => (
                                         <TodoItem
@@ -700,7 +732,7 @@ export default function HomePage() {
                                         />
                                     ))
                                 ) : (
-                                    <div className="text-center py-16 text-gray-500 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
+                                    <div className="lg:col-span-3 text-center py-16 text-gray-500 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
                                         <Target className="h-16 w-16 mx-auto mb-4 text-gray-300" />
                                         <p className="text-lg font-medium mb-2">
                                             {search || statusFilter !== "all"
@@ -718,7 +750,7 @@ export default function HomePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Pagination */}
+                    {/* Pagination (TIDAK BERUBAH) */}
                     {todos.data.length > 0 && (
                         <div className="mt-8 flex justify-center">
                             <div className="flex gap-1 bg-white rounded-xl shadow-lg border border-gray-200 p-2">
@@ -734,7 +766,7 @@ export default function HomePage() {
                                             }
                                             className={`px-4 py-2 text-sm rounded-lg font-medium transition-all duration-200 ${
                                                 link.active
-                                                    ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                                                    ? "bg-black text-white shadow-md"
                                                     : "text-gray-600 hover:bg-gray-100"
                                             }`}
                                             dangerouslySetInnerHTML={{
@@ -755,7 +787,7 @@ export default function HomePage() {
                         </div>
                     )}
 
-                    {/* Modal Component */}
+                    {/* Modal Component (TIDAK BERUBAH) */}
                     <TodoModal
                         isOpen={isModalOpen}
                         onClose={() => setIsModalOpen(false)}
