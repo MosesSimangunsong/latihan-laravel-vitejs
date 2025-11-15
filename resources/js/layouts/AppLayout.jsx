@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
-import { LogOut, Crown, Sparkles, Zap } from "lucide-react";
+import { LogOut, Sparkles, Zap } from "lucide-react";
 
 export default function AppLayout({ children }) {
     const onLogout = () => {
@@ -30,17 +30,6 @@ export default function AppLayout({ children }) {
                             {/* Animated Background */}
                             <div className="absolute inset-0 bg-linear-to-r from-red-500/0 via-red-500/8 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                            {/* Sparkle Effects */}
-                            <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
-                            </div>
-                            <div className="absolute -bottom-1 -left-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150">
-                                <Zap className="w-3 h-3 text-pink-500 animate-bounce" />
-                            </div>
-
-                            {/* Shine Overlay */}
-                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/70 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-
                             {/* Animated Gradient Border */}
                             <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-red-500 via-pink-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
                                 <div className="absolute inset-0.5 rounded-2xl bg-white/95 backdrop-blur-sm"></div>
@@ -58,7 +47,7 @@ export default function AppLayout({ children }) {
                             </div>
 
                             {/* Pulse Ring Effect */}
-                            <div className="absolute inset-0 rounded-2xl border-2 border-red-400/20 group-hover:border-red-400/40 group-hover:animate-pulse transition-all duration-300 -z-10"></div>
+                            <div className=""></div>
                         </Button>
                     </div>
                 </div>
