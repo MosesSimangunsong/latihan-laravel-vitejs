@@ -46,7 +46,7 @@ const TodoItem = ({ todo, onEdit, onDelete, onToggleStatus }) => {
         : "bg-linear-to-r from-blue-400 to-purple-500";
 
     return (
-        <Card className="group relative h-full flex flex-col justify-between overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:translate-y-[-2px] border-2 border-gray-100 hover:border-blue-200">
+        <Card className="group relative h-full flex flex-col justify-between overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 border-2 border-gray-100 hover:border-blue-200">
             {/* Gradient Line Top (Visual status indicator) */}
             <div
                 className={`absolute top-0 left-0 right-0 h-1.5 ${statusGradient}`}
@@ -66,7 +66,7 @@ const TodoItem = ({ todo, onEdit, onDelete, onToggleStatus }) => {
                 <div className="absolute inset-0 bg-black/10"></div>
             </div>
 
-            <CardContent className="p-5 flex flex-col flex-grow">
+            <CardContent className="p-5 flex flex-col grow">
                 {/* Header (Status Toggle & Actions) */}
                 <div className="flex items-center justify-between mb-3 -mt-2">
                     <button
@@ -127,7 +127,7 @@ const TodoItem = ({ todo, onEdit, onDelete, onToggleStatus }) => {
 
                 {/* Description (Trix HTML Content) */}
                 {todo.description && (
-                    <div className="flex-grow min-h-0 mb-4">
+                    <div className="grow min-h-0 mb-4">
                         <div
                             className={`text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none leading-relaxed overflow-hidden ${
                                 isFinished ? "text-gray-400" : ""
