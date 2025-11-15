@@ -280,13 +280,11 @@ const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
     return (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in-0">
             <Card className="w-full max-w-2xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-300 border-0 shadow-2xl">
-                <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-t-xl">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
-                            <Target className="h-5 w-5" />
-                            {todoToEdit ? "Ubah Todo" : "Tambah Todo Baru"}
-                        </CardTitle>
-                    </CardHeader>
+                <div className="bg-linear-to-r">
+                    <CardTitle className="text-black text-xl font-bold flex items-center gap-2">
+                        <Target className="h-5 w-5 text-black" />
+                        {todoToEdit ? "Ubah Todo" : "Tambah Todo Baru"}
+                    </CardTitle>
                 </div>
                 <CardContent className="pt-6">
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -453,7 +451,7 @@ const TodoModal = ({ isOpen, onClose, todoToEdit = null }) => {
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="h-11 px-8 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                className="h-11 px-8 rounded-lg  shadow-lg hover:shadow-xl"
                             >
                                 {processing ? (
                                     <div className="flex items-center gap-2">
@@ -754,35 +752,42 @@ export default function HomePage() {
                     {todos.data.length > 0 && (
                         <div className="mt-8 flex justify-center">
                             <div className="flex gap-1 bg-white rounded-xl shadow-lg border border-gray-200 p-2">
-                                {todos.links.map((link, i) =>
-                                    link.url ? (
-                                        <Link
-                                            key={i}
-                                            href={
-                                                link.url +
-                                                `&search=${encodeURIComponent(
-                                                    search
-                                                )}&status=${statusFilter}`
-                                            }
-                                            className={`px-4 py-2 text-sm rounded-lg font-medium transition-all duration-200 ${
-                                                link.active
-                                                    ? "bg-black text-white shadow-md"
-                                                    : "text-gray-600 hover:bg-gray-100"
-                                            }`}
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ) : (
-                                        <span
-                                            key={i}
-                                            className="px-4 py-2 text-sm text-gray-400 border rounded-lg opacity-50 cursor-not-allowed"
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
+                                {todos.links
+                                    .filter(
+                                        (link) =>
+                                            link.label !==
+                                                "pagination.previous" &&
+                                            link.label !== "pagination.next"
                                     )
-                                )}
+                                    .map((link, i) =>
+                                        link.url ? (
+                                            <Link
+                                                key={i}
+                                                href={
+                                                    link.url +
+                                                    `&search=${encodeURIComponent(
+                                                        search
+                                                    )}&status=${statusFilter}`
+                                                }
+                                                className={`px-4 py-2 text-sm rounded-lg font-medium transition-all duration-200 ${
+                                                    link.active
+                                                        ? "bg-black text-white shadow-md"
+                                                        : "text-gray-600 hover:bg-gray-100"
+                                                }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ) : (
+                                            <span
+                                                key={i}
+                                                className="px-4 py-2 text-sm text-gray-400 border rounded-lg opacity-50 cursor-not-allowed"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        )
+                                    )}
                             </div>
                         </div>
                     )}
