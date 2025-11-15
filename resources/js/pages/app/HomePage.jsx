@@ -545,7 +545,7 @@ export default function HomePage() {
                     <div className="grid lg:grid-cols-3 gap-8 mb-12">
                         <div className="lg:col-span-2">
                             <div className="mb-8">
-                                <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                                <h1 className="text-4xl font-bold ">
                                     Selamat Datang, {auth.name}! 👋
                                 </h1>
                                 <p className="text-gray-600 text-lg">
@@ -666,7 +666,7 @@ export default function HomePage() {
                                 </div>
                                 <Button
                                     onClick={handleAdd}
-                                    className="w-full lg:w-auto h-12 px-6 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    className="w-full lg:w-auto h-12 px-6 rounded-xl"
                                 >
                                     <Plus className="mr-2 h-5 w-5" />
                                     Tambah Tugas Baru

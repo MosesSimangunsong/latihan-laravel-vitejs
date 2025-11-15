@@ -9,21 +9,18 @@ export default function AppLayout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-purple-50/20">
             {/* Navigation */}
-            <nav className="border-b border-gray-300/30 bg-white/80 backdrop-blur-xl shadow-2xl">
+            <nav className="sticky top-0 z-50 border-b border-gray-200/60 bg-white/85 backdrop-blur-lg shadow-md">
                 <div className="container mx-auto px-4">
-                    <div className="flex h-20 items-center justify-between">
-                        <div className="flex items-center space-x-4">
+                    <div className="flex h-16 items-center justify-between">
+                          <div className="flex items-center space-x-4">
                             <Link 
                                 href="/" 
-                                className="text-2xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-3"
+                                className="text-2xl font-black "
                             >
-                                <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-2xl">
-                                    <Crown className="h-6 w-6 text-white" />
-                                </div>
-                                Daniel Todos
-                                <Sparkles className="h-5 w-5 text-yellow-500" />
+                            
+                                Moses Todos
                             </Link>
                         </div>
                         
@@ -32,10 +29,10 @@ export default function AppLayout({ children }) {
                             variant="outline" 
                             size="sm" 
                             onClick={onLogout}
-                            className="relative overflow-hidden group bg-gradient-to-br from-white to-gray-50/90 border-2 border-red-300/60 hover:border-red-400/80 text-red-600 hover:text-red-700 font-bold rounded-2xl px-6 py-3 shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-sm hover:scale-105 min-w-[140px] h-12"
+                            className="relative overflow-hidden group bg-linear-to-br from-white to-gray-50/90 border-2 border-red-300/60 hover:border-red-400/80 text-red-600 hover:text-red-700 font-bold rounded-2xl px-6 py-3 shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-sm hover:scale-105 min-w-[140px] h-12"
                         >
                             {/* Animated Background */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/8 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="absolute inset-0 bg-linear-to-r from-red-500/0 via-red-500/8 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             
                             {/* Sparkle Effects */}
                             <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -46,11 +43,11 @@ export default function AppLayout({ children }) {
                             </div>
                             
                             {/* Shine Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/70 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                             
                             {/* Animated Gradient Border */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500 via-pink-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
-                                <div className="absolute inset-[2px] rounded-2xl bg-white/95 backdrop-blur-sm"></div>
+                            <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-red-500 via-pink-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
+                                <div className="absolute inset-0.5 rounded-2xl bg-white/95 backdrop-blur-sm"></div>
                             </div>
 
                             {/* Content */}
@@ -59,7 +56,7 @@ export default function AppLayout({ children }) {
                                     <LogOut className="w-5 h-5 group-hover:scale-110 group-hover:rotate-90 transition-all duration-300" />
                                     <div className="absolute inset-0 bg-red-500 rounded-full blur-sm opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
                                 </div>
-                                <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent font-black text-sm tracking-wider drop-shadow-sm">
+                                <span className="bg-linear-to-r from-red-600 to-pink-600 bg-clip-text text-transparent font-black text-sm tracking-wider drop-shadow-sm">
                                     Logouts
                                 </span>
                             </div>
@@ -78,15 +75,10 @@ export default function AppLayout({ children }) {
             <footer className="border-t border-gray-300/30 bg-white/80 backdrop-blur-xl py-8 mt-16">
                 <div className="container mx-auto px-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-2">
-                        <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-pulse"></div>
-                        <div className="text-lg font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            &copy; 2025 Zero To Hero
+                        <div className="text-lg font-black ">
+                            &copy; Moses Simangunsong. All rights reserved
                         </div>
-                        <div className="w-2 h-2 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
-                    <p className="text-sm text-gray-600/80 font-medium">
-                        Built with ❤️ for maximum productivity
-                    </p>
                 </div>
             </footer>
 
